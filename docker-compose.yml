@@ -1,0 +1,51 @@
+version: "2"
+services:
+   docker_moodle-app:
+    #  image: php:7.4-fpm
+     build:
+      context: PHP/
+      dockerfile: PHP.Dockerfile
+     restart: always
+     container_name: docker_moodle-app
+     volumes:
+       - ./moodle:/var/www/html
+       - ./moodledata:/var/www/moodledata
+       - ./conf/local.ini:/usr/local/etc/php/php.ini
+     networks:
+       - docker_moodle
+     depends_on:
+       - docker_moodle-db
+   docker_moodle-web:
+     image: nginx
+     restart: always
+     container_name: docker_moodle-web
+     volumes:
+       - ./conf/nginx.conf:/etc/nginx/nginx.conf:ro
+     volumes_from:
+       - docker_moodle-app
+     ports:
+     - "8088:8088"
+     networks:
+       - docker_moodle
+   docker_moodle-db:
+     image: wodby/mariadb:10.6
+     restart: always
+     container_name: docker_moodle-db
+     environment:
+           - MYSQL_USER=moodledude
+           - MYSQL_PASSWORD=mysecretpassword
+           - MYSQL_DATABASE=moodle
+           - MYSQL_ALLOW_EMPTY_PASSWORD=true
+     volumes:
+           - ./dbdata:/var/lib/mysql
+           - ./conf/mycustom.cnf:/etc/mysql/conf.d/custom.cnf
+     expose:
+           - "3306"
+     networks:
+           - docker_moodle
+
+
+networks:
+  docker_moodle:
+      external: false
+

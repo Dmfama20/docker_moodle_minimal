@@ -1,0 +1,5 @@
+[mysqld]
+default_storage_engine = innodb
+innodb_file_per_table = 1
+innodb_file_format = Barracuda
+character-set-server = utf8mb4
